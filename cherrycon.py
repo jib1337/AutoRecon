@@ -345,9 +345,11 @@ def ParseFile(element,filename):
 	# non color file
 	else:
 		with open(filename) as file:
-			text = file.read()
-			ET.SubElement(element, "rich_text").text=text
-
+			try:
+				text = file.read()
+				ET.SubElement(element, "rich_text").text=text
+			except:
+				print("[-] Failed to parse %s" %filename)
 
 
 

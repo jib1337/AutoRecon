@@ -135,14 +135,23 @@ ignore-service-names = [
     [[http.scan]]
     name = 'nikto'
     command = 'nikto -ask=no -h {scheme}://{address}:{port} 2>&1 | tee "{scandir}/{protocol}_{port}_{scheme}_nikto.txt"'
+    #
+    # [[http.scan]]
+    # name = 'dirsearch'
+    # command = 'dirsearch -u {scheme}://{address}:{port}/ -r -R 1 --exclude-subdir=css,icons,js -t 20 -e txt,php,aspx -f -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt |tee "{scandir}/{protocol}_{port}_{scheme}_dirsearch_.ansi"'
+
 
     [[http.scan]]
     name = 'gobuster'
-    command = 'if [[ `gobuster -h 2>&1 | grep -F "mode (dir)"` ]]; then gobuster -u {scheme}://{address}:{port}/ -w /usr/share/seclists/Discovery/Web-Content/common.txt -e -k -l -s "200,204,301,302,307,401,403" -x "txt,html,php,asp,aspx,jsp" -o "{scandir}/{protocol}_{port}_{scheme}_gobuster.txt"; else gobuster dir -u {scheme}://{address}:{port}/ -w /usr/share/seclists/Discovery/Web-Content/common.txt -z -k -l -x "txt,html,php,asp,aspx,jsp" -o "{scandir}/{protocol}_{port}_{scheme}_gobuster.txt"; fi'
+    command = 'if [[ `gobuster -h 2>&1 | grep -F "mode (dir)"` ]]; then gobuster -u {scheme}://{address}:{port}/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -e -k -l -s "200,204,301,302,307,401,403" -o "{scandir}/{protocol}_{port}_{scheme}_gobuster.txt"; else gobuster dir -u {scheme}://{address}:{port}/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -z -k -l -o "{scandir}/{protocol}_{port}_{scheme}_gobuster.txt"; fi'
+
+    # [[http.scan]]
+    # name = 'dirb'
+    # command = 'dirb {scheme}://{address}:{port}/ /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -l -S -X ",.txt,.html,.php,.asp,.aspx,.jsp" -o "{scandir}/{protocol}_{port}_{scheme}_dirb_dirbuster.txt"'
 
 [[http.scan]]
     name = 'wpscan'
-    command = 'if [[ `cat "{scandir}/{protocol}_{port}_{scheme}_CMSeek.txt"| grep "WordPress"` ]]; then wpscan --url {scheme}://{address}:{port}/ -e vp,vt,tt,cb,dbe,u,m -f cli-no-color 2>&1 | tee "{scandir}/{protocol}_{port}_{scheme}_wpscan.txt"; fi'
+    command = 'if [[ `cat "{scandir}/{protocol}_{port}_{scheme}_CMSeek.txt"| grep "WordPress"` ]]; then wpscan --api-token Z7k3m9sAFib0ZHqto8LqNUsJazvKF2VDYh1AyS18wjw --url {scheme}://{address}:{port}/ -e vp,vt,tt,cb,dbe,u,m -f cli-no-color 2>&1 | tee "{scandir}/{protocol}_{port}_{scheme}_wpscan.txt"; fi'
 
 
     [[http.manual]]

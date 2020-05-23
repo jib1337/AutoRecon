@@ -32,7 +32,7 @@ atexit.register(_quit)
 TERM_FLAGS = termios.tcgetattr(sys.stdin.fileno())
 
 verbose = 0
-nmap = '-v -Pn -R'
+nmap = '-v -Pn -R' # DRIFT WAS HERE (got rid of --reason,decreased verbosity, added -R)
 srvname = ''
 heartbeat_interval = 60
 port_scan_profile = None
@@ -230,7 +230,7 @@ async def run_cmd(semaphore, cmd, target, tag='?', patterns=[]):
         address = target.address
         scandir = target.scandir
 
-        info('Running task {bgreen}{tag}{rst} on {byellow}{address}{rst}') # + (' with {bblue}{cmd}{rst}' if verbose >= 1 else ''))
+        info('Running task {bgreen}{tag}{rst} on {byellow}{address}{rst}') # + (' with {bblue}{cmd}{rst}' if verbose >= 1 else ''))  # DRIFT WAS HERE (removed command line to clean up output)
 
         async with target.lock:
             with open(os.path.join(scandir, '_commands.log'), 'a') as file:
@@ -344,7 +344,7 @@ async def run_portscan(semaphore, tag, target, service_detection, port_scan=None
             command = e(port_scan[0])
             pattern = port_scan[1]
 
-            info('Running port scan {bgreen}{tag}{rst} on {byellow}{address}{rst}') # + (' with {bblue}{command}{rst}' if verbose >= 1 else ''))
+            info('Running port scan {bgreen}{tag}{rst} on {byellow}{address}{rst}') # + (' with {bblue}{command}{rst}' if verbose >= 1 else '')) # DRIFT WAS HERE (cleaned up output)
 
             async with target.lock:
                 with open(os.path.join(scandir, '_commands.log'), 'a') as file:
@@ -385,7 +385,7 @@ async def run_portscan(semaphore, tag, target, service_detection, port_scan=None
         command = e(service_detection[0])
         pattern = service_detection[1]
 
-        info('Running service detection {bgreen}{tag}{rst} on {byellow}{address}{rst}') # + (' with {bblue}{command}{rst}' if verbose >= 1 else ''))
+        info('Running service detection {bgreen}{tag}{rst} on {byellow}{address}{rst}') # + (' with {bblue}{command}{rst}' if verbose >= 1 else '')) # DRIFT WAS HERE (cleaned up output)
 
         async with target.lock:
             with open(os.path.join(scandir, '_commands.log'), 'a') as file:
@@ -628,7 +628,7 @@ def scan_host(target, concurrent_scans):
     os.makedirs(scandir, exist_ok=True)
 
     os.makedirs(os.path.abspath(os.path.join(scandir, 'xml')), exist_ok=True)
-    os.makedirs(os.path.abspath(os.path.join(scandir, 'gnmap')), exist_ok=True)
+    os.makedirs(os.path.abspath(os.path.join(scandir, 'gnmap')), exist_ok=True)# DRIFT WAS HERE (added creation of gnmap dir)
 
     # Use a lock when writing to specific files that may be written to by other asynchronous functions.
     target.lock = asyncio.Lock()
@@ -669,7 +669,7 @@ if __name__ == '__main__':
     parser.add_argument('--only-scans-dir', action='store_true', default=False, help='Only create the "scans" directory for results. Other directories (e.g. exploit, loot, report) will not be created. Default: false')
     parser.add_argument('--heartbeat', action='store', type=int, default=60, help='Specifies the heartbeat interval (in seconds) for task status messages. Default: %(default)s')
     nmap_group = parser.add_mutually_exclusive_group()
-    nmap_group.add_argument('--nmap', action='store', default='-vv -Pn', help='Override the {nmap_extra} variable in scans. Default: %(default)s')
+    nmap_group.add_argument('--nmap', action='store', default='-vv -Pn', help='Override the {nmap_extra} variable in scans. Default: %(default)s') # DRIFT WAS HERE (changed defaul nmap args)
     nmap_group.add_argument('--nmap-append', action='store', default='', help='Append to the default {nmap_extra} variable in scans.')
     parser.add_argument('-v', '--verbose', action='count', default=0, help='Enable verbose output. Repeat for more verbosity.')
     parser.add_argument('--disable-sanity-checks', action='store_true', default=False, help='Disable sanity checks that would otherwise prevent the scans from running. Default: false')
