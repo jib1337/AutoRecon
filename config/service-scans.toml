@@ -110,13 +110,13 @@ ignore-service-names = [
     name = 'CMSeek'
     command = 'cmseek --batch --follow-redirect --url {scheme}://{address}:{port} 2>&1 | tee "{scandir}/{protocol}_{port}_{scheme}_CMSeek.ansi";cmseek --clear-result'
 
-    [[http.scan]]
-    name = 'nikto'
-    command = 'nikto -ask=no -h {scheme}://{address}:{port} 2>&1 | tee "{scandir}/{protocol}_{port}_{scheme}_nikto.txt"'
+    # [[http.scan]]
+    # name = 'nikto'
+    # command = 'nikto -ask=no -h {scheme}://{address}:{port} 2>&1 | tee "{scandir}/{protocol}_{port}_{scheme}_nikto.txt"'
     
-    [[http.scan]]
-    name = 'dirsearch'
-    command = 'dirsearch -u {scheme}://{address}:{port}/ -r -R 1 --exclude-subdir=css,icons,js -t 20 -e txt,php,aspx -f -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt |tee "{scandir}/{protocol}_{port}_{scheme}_dirsearch_.ansi"'
+    # [[http.scan]]
+    # name = 'dirsearch'
+    # command = 'dirsearch -u {scheme}://{address}:{port}/ -r -R 1 --exclude-subdir=css,icons,js -t 20 -e txt,php,aspx -f |tee "{scandir}/{protocol}_{port}_{scheme}_dirsearch_.ansi"'
 
 [imap]
 

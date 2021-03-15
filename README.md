@@ -6,9 +6,11 @@ The tool works by firstly performing port scans / service detection scans. From 
 
 Everything in the tool is highly configurable. The default configuration performs **no automated exploitation** to keep the tool in line with OSCP exam rules. If you wish to add automatic exploit tools to the configuration, you do so at your own risk. The author will not be held responsible for negative actions that result from the mis-use of this tool.
 
-## Notes
-- Make sure running user has sudo nopass perms
-- Install cmseek: https://github.com/Tuhinshubhra/CMSeeK
+## jib1337 fork notes
+
+- Make sure running user has sudo nopass perms, nmap commands will use sudo
+- Install cmseek and dirsearch to PATH
+- Cherrytree functionality being worked on
 
 ## Origin
 

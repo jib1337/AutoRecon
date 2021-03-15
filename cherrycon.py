@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-
 import xml.etree.cElementTree as ET
 from libnmap.parser import NmapParser
 import os as OS
@@ -11,6 +10,7 @@ import glob
 import re
 import subprocess
 import base64
+import sys
 
 # used for searchsploit, helps to narrow results [search_string, replace_string]
 version_filter = [['ftpd','ftp'],['Windows',''],['httpd','http'],['Powered by Apache',''],[';',''],['smbd','']]
@@ -33,7 +33,6 @@ HighlighterArray = [
 	[r'(^http.*\(Status: 403\).*\n)',"#ff0000","gobust"],
 	[r'(\+ OSVDB-.*?:)',"#ffff00","nikto"],
 	]
-
 
 EXFIL_TEMPLATE = """
 Windows
@@ -91,7 +90,6 @@ def InsertImage(element,image):
 	# </encoded_png>
 	# </node>
 
-#service is an libnmap.host.service object
 def DoSearchSploit(service):
 	HEADER = '\033[95m'
 	GREEN = '\033[92m'
@@ -351,23 +349,20 @@ def ParseFile(element,filename):
 			except:
 				print("[-] Failed to parse %s" %filename)
 
-
-
 parser = argparse.ArgumentParser()
 parser.add_argument("-c", "--color", action="store_true",help="Colorize certian lines")
-parser.add_argument("-o", "--out", action="store",help="Output filename (default is cherrycon.ctd)")
-
-parser.add_argument("dir", help="AutoRecon directory")
+parser.add_argument("-o", "--out", default="recon_notes.ctd", action="store",help="Output filename")
+parser.add_argument("-d", "--dir", help="AutoRecon directory")
+parser.add_argument("-s", "--silent", help="Run silently")
 args = parser.parse_args()
 
 # seed random number generator
 seed(152)
 
-
 ReconDir = args.dir
 ReconDir = ReconDir.rstrip('//')
-ScansDir = "%s/scans/" %ReconDir
-XMLdir = "%s/xml/" %ScansDir
+ScansDir = "%s/scans/" % ReconDir
+XMLdir = "%s/xml/" % ScansDir
 
 
 if not OS.path.exists(ReconDir):
@@ -382,10 +377,7 @@ if not OS.path.exists(ScansDir):
 	print("[!] Error: AutoRecon scans directory doesn't exist !")
 	exit(1)
 
-if args.out:
-    ctdfile = args.out
-else:
-    ctdfile = "%s/cherrycon.ctd" %ReconDir
+ctdfile = args.out
 
 AllPorts=[]
 AllServiceVersions=[]
@@ -541,30 +533,29 @@ r_service_ver = ET.SubElement(r_enum, "node", custom_icon_id="12", foreground=""
 tmptext = ""
 for fp in AllServiceVersions:
 	tmptext += fp + "\n"
+
 ET.SubElement(r_service_ver, "rich_text").text=tmptext
-
 r_vulns = ET.SubElement(r_enum, "node", custom_icon_id="43", foreground="", is_bold="False", name="Remote Vulnerabilites", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-
 foothold = ET.SubElement(host, "node", custom_icon_id="41", foreground="", is_bold="False", name="Foothold", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
 l_enum = ET.SubElement(host, "node", custom_icon_id="21", foreground="", is_bold="False", name="Local Enumeration", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
 l_service_ver = ET.SubElement(l_enum, "node", custom_icon_id="12", foreground="", is_bold="False", name="Software Versions", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
 l_vulns = ET.SubElement(l_enum, "node", custom_icon_id="43", foreground="", is_bold="False", name="Local Vulnerabilites", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-
 escalate = ET.SubElement(host, "node", custom_icon_id="41", foreground="", is_bold="False", name="Escalation", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-
 users = ET.SubElement(host, "node", custom_icon_id="42", foreground="", is_bold="False", name="Users", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-
 loot = ET.SubElement(host, "node", custom_icon_id="24", foreground="", is_bold="False", name="Loot", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
 creds = ET.SubElement(loot, "node", custom_icon_id="42", foreground="", is_bold="False", name="Credentials", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
 proof = ET.SubElement(loot, "node", custom_icon_id="18", foreground="", is_bold="False", name="Proof", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
 secrets = ET.SubElement(loot, "node", custom_icon_id="10", foreground="", is_bold="False", name="Secrets", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-
 exfil = ET.SubElement(host, "node", custom_icon_id="9", foreground="", is_bold="False", name="Exfil", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
 ET.SubElement(exfil, "rich_text").text=EXFIL_TEMPLATE
 cleanup_todo = ET.SubElement(exfil, "node", custom_icon_id="18", foreground="", is_bold="False", name="Cleanup-Todo", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
 ET.SubElement(cleanup_todo, "rich_text").text=CLEANUP_TEMPLATE
 
-tree = ET.ElementTree(root)
-tree.write(ctdfile)
+try:
+    tree = ET.ElementTree(root)
+    tree.write(ctdfile, encoding='utf-8')
+except Exception as e:
+    print('Cherrytree parser failed: ' + str(e))
+    sys.exit(1)
 
-exit()
+sys.exit(0)

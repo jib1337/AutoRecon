@@ -429,16 +429,14 @@ async def run_portscan(semaphore, tag, target, service_detection, port_scan=None
 
         return {'returncode': process.returncode, 'name': 'run_portscan', 'services': services}
 
-async def start_heartbeat(target, period=60):
+async def start_heartbeat(target, period=120):
     while True:
         await asyncio.sleep(period)
         async with target.lock:
             tasks = target.running_tasks
             count = len(tasks)
 
-            tasks_list = ''
-            if verbose >= 1:
-                tasks_list = ': {bgreen}' + ', '.join(tasks) + '{rst}'
+            tasks_list = ': {bgreen}' + ', '.join(tasks) + '{rst}'
 
             current_time = datetime.now().strftime('%H:%M:%S')
 
