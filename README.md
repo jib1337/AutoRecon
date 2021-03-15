@@ -1,5 +1,3 @@
-[![Packaging status](https://repology.org/badge/vertical-allrepos/autorecon.svg)](https://repology.org/project/autorecon/versions)
-
 # AutoRecon
 
 AutoRecon is a multi-threaded network reconnaissance tool which performs automated enumeration of services. It is intended as a time-saving tool for use in CTFs and other penetration testing environments (e.g. OSCP). It may also be useful in real-world engagements.
@@ -7,6 +5,10 @@ AutoRecon is a multi-threaded network reconnaissance tool which performs automat
 The tool works by firstly performing port scans / service detection scans. From those initial results, the tool will launch further enumeration scans of those services using a number of different tools. For example, if HTTP is found, nikto will be launched (as well as many others).
 
 Everything in the tool is highly configurable. The default configuration performs **no automated exploitation** to keep the tool in line with OSCP exam rules. If you wish to add automatic exploit tools to the configuration, you do so at your own risk. The author will not be held responsible for negative actions that result from the mis-use of this tool.
+
+## Notes
+- Make sure running user has sudo nopass perms
+- Install cmseek: https://github.com/Tuhinshubhra/CMSeeK
 
 ## Origin
 

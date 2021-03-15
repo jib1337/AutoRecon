@@ -8,6 +8,7 @@
 #
 
 import atexit
+import warnings
 import argparse
 import asyncio
 import colorama
@@ -24,6 +25,8 @@ import time
 import toml
 import termios
 
+warnings.filterwarnings("ignore", category=DeprecationWarning) 
+
 def _quit():
     termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, TERM_FLAGS)
 
@@ -32,7 +35,7 @@ atexit.register(_quit)
 TERM_FLAGS = termios.tcgetattr(sys.stdin.fileno())
 
 verbose = 0
-nmap = '-v -Pn -R' # DRIFT WAS HERE (got rid of --reason,decreased verbosity, added -R)
+nmap = '-Pn'
 srvname = ''
 heartbeat_interval = 60
 port_scan_profile = None
@@ -230,7 +233,7 @@ async def run_cmd(semaphore, cmd, target, tag='?', patterns=[]):
         address = target.address
         scandir = target.scandir
 
-        info('Running task {bgreen}{tag}{rst} on {byellow}{address}{rst}') # + (' with {bblue}{cmd}{rst}' if verbose >= 1 else ''))  # DRIFT WAS HERE (removed command line to clean up output)
+        info('Running task {bgreen}{tag}{rst} on {byellow}{address}{rst}')
 
         async with target.lock:
             with open(os.path.join(scandir, '_commands.log'), 'a') as file:
@@ -344,7 +347,7 @@ async def run_portscan(semaphore, tag, target, service_detection, port_scan=None
             command = e(port_scan[0])
             pattern = port_scan[1]
 
-            info('Running port scan {bgreen}{tag}{rst} on {byellow}{address}{rst}') # + (' with {bblue}{command}{rst}' if verbose >= 1 else '')) # DRIFT WAS HERE (cleaned up output)
+            info('Running port scan {bgreen}{tag}{rst} on {byellow}{address}{rst}')
 
             async with target.lock:
                 with open(os.path.join(scandir, '_commands.log'), 'a') as file:
@@ -416,6 +419,12 @@ async def run_portscan(semaphore, tag, target, service_detection, port_scan=None
         else:
             info('Service detection {bgreen}{tag}{rst} on {byellow}{address}{rst} finished successfully in {elapsed_time}')
 
+            # Output full scan to terminal
+            if tag == 'nmap-full-tcp':
+                with open(os.path.join(scandir, '_full_tcp_nmap.txt'), 'r') as fullScan:
+                    print(fullScan.read())
+
+
         services = results[0]
 
         return {'returncode': process.returncode, 'name': 'run_portscan', 'services': services}
@@ -480,7 +489,7 @@ async def scan_services(loop, semaphore, target):
                         port = service_tuple[1]
                         service = service_tuple[2]
 
-                        info('Found {bmagenta}{service}{rst} on {bmagenta}{protocol}/{port}{rst} on target {byellow}{address}{rst}')
+                        # info('Found {bmagenta}{service}{rst} on {bmagenta}{protocol}/{port}{rst} on target {byellow}{address}{rst}')
 
                         if not only_scans_dir:
                             with open(os.path.join(target.reportdir, 'notes.txt'), 'a') as file:
@@ -607,9 +616,6 @@ def scan_host(target, concurrent_scans):
     os.makedirs(basedir, exist_ok=True)
 
     if not only_scans_dir:
-        exploitdir = os.path.abspath(os.path.join(basedir, 'exploit'))
-        os.makedirs(exploitdir, exist_ok=True)
-
         lootdir = os.path.abspath(os.path.join(basedir, 'loot'))
         os.makedirs(lootdir, exist_ok=True)
 
@@ -669,7 +675,7 @@ if __name__ == '__main__':
     parser.add_argument('--only-scans-dir', action='store_true', default=False, help='Only create the "scans" directory for results. Other directories (e.g. exploit, loot, report) will not be created. Default: false')
     parser.add_argument('--heartbeat', action='store', type=int, default=60, help='Specifies the heartbeat interval (in seconds) for task status messages. Default: %(default)s')
     nmap_group = parser.add_mutually_exclusive_group()
-    nmap_group.add_argument('--nmap', action='store', default='-vv -Pn', help='Override the {nmap_extra} variable in scans. Default: %(default)s') # DRIFT WAS HERE (changed defaul nmap args)
+    nmap_group.add_argument('--nmap', action='store', default='-vv -Pn', help='Override the {nmap_extra} variable in scans. Default: %(default)s')
     nmap_group.add_argument('--nmap-append', action='store', default='', help='Append to the default {nmap_extra} variable in scans.')
     parser.add_argument('-v', '--verbose', action='count', default=0, help='Enable verbose output. Repeat for more verbosity.')
     parser.add_argument('--disable-sanity-checks', action='store_true', default=False, help='Disable sanity checks that would otherwise prevent the scans from running. Default: false')
