@@ -6,11 +6,16 @@ The tool works by firstly performing port scans / service detection scans. From 
 
 Everything in the tool is highly configurable. The default configuration performs **no automated exploitation** to keep the tool in line with OSCP exam rules. If you wish to add automatic exploit tools to the configuration, you do so at your own risk. The author will not be held responsible for negative actions that result from the mis-use of this tool.
 
-## jib1337 fork notes
+## jib1337 fork
+### Changes
+- Nmap full scan goes straight into terminal when done, no "found service" messages
+- Config changes disabling long dirbusting, changing defaults to scan 1 hosts at a time with 5 max scans
+- Cherrytree files automatically get dropped on the desktop after a host has been scanned, destination can be changed via argument
+- Nmap uses sudo now
 
-- Make sure running user has sudo nopass perms, nmap commands will use sudo
+### Notes
+- Make sure running user has sudo nopass perms
 - Install cmseek and dirsearch to PATH
-- Cherrytree functionality being worked on
 
 ## Origin
 

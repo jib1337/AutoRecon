@@ -24,6 +24,8 @@ import sys
 import time
 import toml
 import termios
+from getpass import getuser
+from cherrycon import *
 
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
@@ -422,8 +424,9 @@ async def run_portscan(semaphore, tag, target, service_detection, port_scan=None
             # Output full scan to terminal
             if tag == 'nmap-full-tcp':
                 with open(os.path.join(scandir, '_full_tcp_nmap.txt'), 'r') as fullScan:
+                    info('{bgreen}[+]' + '-' * 50 + '[NMAP SCAN]' + '-' * 50 + '[+]{rst}')
                     print(fullScan.read())
-
+                    info('{bgreen}[+]' + '-' * 111 + '[+]{rst}')
 
         services = results[0]
 
@@ -632,7 +635,7 @@ def scan_host(target, concurrent_scans):
     os.makedirs(scandir, exist_ok=True)
 
     os.makedirs(os.path.abspath(os.path.join(scandir, 'xml')), exist_ok=True)
-    os.makedirs(os.path.abspath(os.path.join(scandir, 'gnmap')), exist_ok=True)# DRIFT WAS HERE (added creation of gnmap dir)
+    os.makedirs(os.path.abspath(os.path.join(scandir, 'gnmap')), exist_ok=True)
 
     # Use a lock when writing to specific files that may be written to by other asynchronous functions.
     target.lock = asyncio.Lock()
@@ -647,6 +650,12 @@ def scan_host(target, concurrent_scans):
         loop.run_until_complete(scan_services(loop, semaphore, target))
         elapsed_time = calculate_elapsed_time(start_time)
         info('Finished scanning target {byellow}{target.address}{rst} in {elapsed_time}')
+
+        if makeNotes(basedir, f'{cherrydir}/{target.address}.ctd') == 0:
+            info('Cherrytree notes file outputted to {bgreen}' + cherrydir + '/' + target.address + '{rst}')
+        else:
+            warn(Fore.YELLOW + '[' + Style.BRIGHT + tag + Style.NORMAL + '] Cherrytree notes were not outputted.' + Fore.RESET)
+
     except KeyboardInterrupt:
         sys.exit(1)
 
@@ -665,13 +674,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Network reconnaissance tool to port scan and automatically enumerate services found on multiple targets.')
     parser.add_argument('targets', action='store', help='IP addresses (e.g. 10.0.0.1), CIDR notation (e.g. 10.0.0.1/24), or resolvable hostnames (e.g. foo.bar) to scan.', nargs="*")
     parser.add_argument('-t', '--targets', action='store', type=str, default='', dest='target_file', help='Read targets from file.')
-    parser.add_argument('-ct', '--concurrent-targets', action='store', metavar='<number>', type=int, default=5, help='The maximum number of target hosts to scan concurrently. Default: %(default)s')
-    parser.add_argument('-cs', '--concurrent-scans', action='store', metavar='<number>', type=int, default=10, help='The maximum number of scans to perform per target host. Default: %(default)s')
+    parser.add_argument('-ct', '--concurrent-targets', action='store', metavar='<number>', type=int, default=1, help='The maximum number of target hosts to scan concurrently. Default: %(default)s')
+    parser.add_argument('-cs', '--concurrent-scans', action='store', metavar='<number>', type=int, default=5, help='The maximum number of scans to perform per target host. Default: %(default)s')
     parser.add_argument('--profile', action='store', default='default', dest='profile_name', help='The port scanning profile to use (defined in port-scan-profiles.toml). Default: %(default)s')
     parser.add_argument('-o', '--output', action='store', default='results', dest='output_dir', help='The output directory for results. Default: %(default)s')
     parser.add_argument('--single-target', action='store_true', default=False, help='Only scan a single target. A directory named after the target will not be created. Instead, the directory structure will be created within the output directory. Default: false')
     parser.add_argument('--only-scans-dir', action='store_true', default=False, help='Only create the "scans" directory for results. Other directories (e.g. exploit, loot, report) will not be created. Default: false')
     parser.add_argument('--heartbeat', action='store', type=int, default=60, help='Specifies the heartbeat interval (in seconds) for task status messages. Default: %(default)s')
+    parser.add_argument('--cherrytree-dir', action='store', default=f'/home/{getuser()}/Desktop', help='Choose the directory where cherrytree files get saved')
     nmap_group = parser.add_mutually_exclusive_group()
     nmap_group.add_argument('--nmap', action='store', default='-vv -Pn', help='Override the {nmap_extra} variable in scans. Default: %(default)s')
     nmap_group.add_argument('--nmap-append', action='store', default='', help='Append to the default {nmap_extra} variable in scans.')
@@ -682,6 +692,7 @@ if __name__ == '__main__':
 
     single_target = args.single_target
     only_scans_dir = args.only_scans_dir
+    cherrydir = args.cherrytree_dir
 
     errors = False
 

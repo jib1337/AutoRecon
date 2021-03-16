@@ -90,7 +90,7 @@ def InsertImage(element,image):
 	# </encoded_png>
 	# </node>
 
-def DoSearchSploit(service):
+def DoSearchSploit(service, ScansDir):
 	HEADER = '\033[95m'
 	GREEN = '\033[92m'
 	ENDC = '\033[0m'
@@ -186,7 +186,7 @@ def DoSearchSploit(service):
 
 # imports an ansi color file. only does simple ansi formatting.  ***** requires ansifilter
 def ImportAnsiFile(element,filename):
-	print("Importing ANSI File: %s" %filename)
+	# print("Importing ANSI File: %s" %filename)
 	RTF_VALS = {
 	        'fg': 0,
 	        'bg': 0,
@@ -271,7 +271,7 @@ def ImportAnsiFile(element,filename):
 
 
 # this function handles colorizing files
-def ParseFile(element,filename):
+def ParseFile(element,filename, ScansDir):
 
 	if ScansDir not in filename:
 		filename = "%s%s" %(ScansDir,filename)
@@ -287,13 +287,10 @@ def ParseFile(element,filename):
 		InsertImage(element,filename)
 		return
 
-	if args.color == True:
-		# test if its a file we need to color
-		for grp in HighlighterArray:
-			if grp[2] in str(filename):
-				colorize=True
-	else:
-		colorize = False
+	# test if its a file we need to color
+	for grp in HighlighterArray:
+		if grp[2] in str(filename):
+			colorize=True
 
 	if colorize == True:
 
@@ -349,213 +346,208 @@ def ParseFile(element,filename):
 			except:
 				print("[-] Failed to parse %s" %filename)
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-c", "--color", action="store_true",help="Colorize certian lines")
-parser.add_argument("-o", "--out", default="recon_notes.ctd", action="store",help="Output filename")
-parser.add_argument("-d", "--dir", help="AutoRecon directory")
-parser.add_argument("-s", "--silent", help="Run silently")
-args = parser.parse_args()
+def makeNotes(ReconDir, ctdfile):
 
-# seed random number generator
-seed(152)
+    seed(500)
 
-ReconDir = args.dir
-ReconDir = ReconDir.rstrip('//')
-ScansDir = "%s/scans/" % ReconDir
-XMLdir = "%s/xml/" % ScansDir
+    if ReconDir.endswith('/'):
+        ReconDir = ReconDir.rstrip('/')
+    ScansDir = f'{ReconDir}/scans/'
+    XMLdir = f'{ReconDir}/scans/xml/'
 
+    if not OS.path.exists(ReconDir):
+        print("[!] Error: AutoRecon directory doesn't exist !")
+        exit(1)
 
-if not OS.path.exists(ReconDir):
-	print("[!] Error: AutoRecon directory doesn't exist !")
-	exit(1)
+    if not OS.path.exists(XMLdir):
+        print("[!] Error: AutoRecon XML directory doesn't exist !")
+        exit(1)
 
-if not OS.path.exists(XMLdir):
-	print("[!] Error: AutoRecon XML directory doesn't exist !")
-	exit(1)
+    if not OS.path.exists(ScansDir):
+        print("[!] Error: AutoRecon scans directory doesn't exist !")
+        exit(1)
 
-if not OS.path.exists(ScansDir):
-	print("[!] Error: AutoRecon scans directory doesn't exist !")
-	exit(1)
+    AllPorts=[]
+    AllServiceVersions=[]
 
-ctdfile = args.out
+    #*** parse and combine ports
+    if OS.path.exists("%s_full_tcp_nmap.xml" % XMLdir):
+        rep = NmapParser.parse_fromfile("%s_full_tcp_nmap.xml" % XMLdir)
 
-AllPorts=[]
-AllServiceVersions=[]
+        for _host in rep.hosts:
+            if _host.is_up():
+                try:
+                    if _host.hostnames[0] != '':
+                        targetname = "%s (%s)" %(_host.hostnames[0],_host.address)
+                    else:
+                        targetname = _host.address
+                except:
+                    targetname = _host.address
 
-#*** parse and combine ports
-if OS.path.exists("%s_full_tcp_nmap.xml" %XMLdir):
-	try:
-		rep = NmapParser.parse_fromfile("%s_full_tcp_nmap.xml" %XMLdir)
-
-
-		for _host in rep.hosts:
-			if _host.is_up():
-				try:
-					if _host.hostnames[0] != '':
-						targetname = "%s (%s)" %(_host.hostnames[0],_host.address)
-					else:
-						targetname = _host.address
-				except:
-					targetname = _host.address
-
-				for  _service in _host.services:
-					if _service.open():
-						AllPorts.append("%s/%s/%s" %(_service.port,_service.protocol,_service.service))
-						AllServiceVersions.append(_service.banner)
-						DoSearchSploit(_service)
-	except:
-		print("Failed to parse %s_full_tcp_nmap.xml" %XMLdir)
+                for  _service in _host.services:
+                    if _service.open():
+                        AllPorts.append("%s/%s/%s" %(_service.port,_service.protocol,_service.service))
+                        AllServiceVersions.append(_service.banner)
+                        DoSearchSploit(_service, ScansDir)
 
 
-if OS.path.exists("%s_quick_tcp_nmap.xml" %XMLdir):
-	try:
-		rep = NmapParser.parse_fromfile("%s_quick_tcp_nmap.xml" %XMLdir)
-		for _host in rep.hosts:
-			if _host.is_up():
-				try:
-					if _host.hostnames[0] != '':
-						targetname = "%s (%s)" %(_host.hostnames[0],_host.address)
-					else:
-						targetname = _host.address
-				except:
-					targetname = _host.address
+    if OS.path.exists("%s_quick_tcp_nmap.xml" %XMLdir):
+        try:
+            rep = NmapParser.parse_fromfile("%s_quick_tcp_nmap.xml" %XMLdir)
+            for _host in rep.hosts:
+                if _host.is_up():
+                    try:
+                        if _host.hostnames[0] != '':
+                            targetname = "%s (%s)" %(_host.hostnames[0],_host.address)
+                        else:
+                            targetname = _host.address
+                    except:
+                        targetname = _host.address
 
-				for  _service in _host.services:
-					if _service.open():
-						AllPorts.append("%s/%s/%s" %(_service.port,_service.protocol,_service.service))
-						AllServiceVersions.append(_service.banner)
-	except:
-		print("Failed to parse %s_quick_tcp_nmap.xml" %XMLdir)
+                    for  _service in _host.services:
+                        if _service.open():
+                            AllPorts.append("%s/%s/%s" %(_service.port,_service.protocol,_service.service))
+                            AllServiceVersions.append(_service.banner)
+        except:
+            print("Failed to parse %s_quick_tcp_nmap.xml" %XMLdir)
 
-if OS.path.exists("%s_top_20_udp_nmap.xml" %XMLdir):
-	try:
-		rep = NmapParser.parse_fromfile("%s_top_20_udp_nmap.xml" %XMLdir)
-		for _host in rep.hosts:
-			if _host.is_up():
-				try:
-					if _host.hostnames[0] != '':
-						targetname = "%s (%s)" %(_host.hostnames[0],_host.address)
-					else:
-						targetname = _host.address
-				except:
-					targetname = _host.address
+    if OS.path.exists("%s_top_20_udp_nmap.xml" %XMLdir):
+        try:
+            rep = NmapParser.parse_fromfile("%s_top_20_udp_nmap.xml" %XMLdir)
+            for _host in rep.hosts:
+                if _host.is_up():
+                    try:
+                        if _host.hostnames[0] != '':
+                            targetname = "%s (%s)" %(_host.hostnames[0],_host.address)
+                        else:
+                            targetname = _host.address
+                    except:
+                        targetname = _host.address
 
-				for  _service in _host.services:
-					if _service.open():
-						AllPorts.append("%s/%s/%s" %(_service.port,_service.protocol,_service.service))
-						AllServiceVersions.append(_service.banner)
-						DoSearchSploit(_service)
-	except:
-		print("Failed to parse %s_top_20_udp_nmap.xml" %XMLdir)
+                    for  _service in _host.services:
+                        if _service.open():
+                            AllPorts.append("%s/%s/%s" %(_service.port,_service.protocol,_service.service))
+                            AllServiceVersions.append(_service.banner)
+                            DoSearchSploit(_service, ScansDir)
+        except:
+            print("Failed to parse %s_top_20_udp_nmap.xml" %XMLdir)
 
-# remove duplicates
-unique_list = []
-for x in AllPorts:
-	# check if exists in unique_list or not
-	if x not in unique_list and x != "":
-		unique_list.append(x)
+    # remove duplicates
+    unique_list = []
+    for x in AllPorts:
+        # check if exists in unique_list or not
+        if x not in unique_list and x != "":
+            unique_list.append(x)
 
-AllPorts = unique_list
+    AllPorts = unique_list
 
+    unique_list2 = []
+    for x in AllServiceVersions:
+        # check if exists in unique_list or not
+        x = x.replace("product: ","")
+        if "ostype:" in x:
+            x =  x.split("ostype: ")[0]
+        if "extrainfo: " in x:
+            x =  x.split("extrainfo: ")[0]
 
-unique_list2 = []
-for x in AllServiceVersions:
-	# check if exists in unique_list or not
-	x = x.replace("product: ","")
-	if "ostype:" in x:
-		x =  x.split("ostype: ")[0]
-	if "extrainfo: " in x:
-		x =  x.split("extrainfo: ")[0]
+        if x not in unique_list2 and x != "":
+            unique_list2.append(x)
 
-	if x not in unique_list2 and x != "":
-		unique_list2.append(x)
+    AllServiceVersions = unique_list2
 
-AllServiceVersions = unique_list2
-
-root = ET.Element("cherrytree")
-host = ET.SubElement(root, "node", custom_icon_id="14", foreground="", is_bold="False", name=targetname, prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-sysinfo = ET.SubElement(host, "node", custom_icon_id="12", foreground="", is_bold="False", name="System Details", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-
-r_enum = ET.SubElement(host, "node", custom_icon_id="22", foreground="", is_bold="False", name="Remote Enumeration", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-portnode = ET.SubElement(r_enum, "node", custom_icon_id="38", foreground="", is_bold="False", name="Ports", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    root = ET.Element("cherrytree")
+    host = ET.SubElement(root, "node", custom_icon_id="14", foreground="", is_bold="False", name=targetname, prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    sysinfo = ET.SubElement(host, "node", custom_icon_id="12", foreground="", is_bold="False", name="System Details", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    r_enum = ET.SubElement(host, "node", custom_icon_id="22", foreground="", is_bold="False", name="Remote Enumeration", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    portnode = ET.SubElement(r_enum, "node", custom_icon_id="38", foreground="", is_bold="False", name="Ports", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
 
 
-for port in AllPorts:
-	service = ET.SubElement(portnode, "node", is_bold="False", name=str(port), prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-	tPort=port.split('/')
+    for port in AllPorts:
+        service = ET.SubElement(portnode, "node", is_bold="False", name=str(port), prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+        tPort=port.split('/')
 
 
 
-	tmpFileArray = glob.glob("%s%s_%s_*" %(ScansDir,tPort[1],tPort[0]))
+        tmpFileArray = glob.glob("%s%s_%s_*" %(ScansDir,tPort[1],tPort[0]))
 
-	if tmpFileArray:
-		# portscansnode = ET.SubElement(service, "node", custom_icon_id="44", foreground="", is_bold="False", name="Scans", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+        if tmpFileArray:
+            # portscansnode = ET.SubElement(service, "node", custom_icon_id="44", foreground="", is_bold="False", name="Scans", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
 
-#  parse files for each service
-		for filename in tmpFileArray:
-			basename, file_extension = OS.path.splitext(filename)
-			# if file_extension == ".gnmap" or file_extension == ".xml":
-			# 	continue
+            #  parse files for each service
+            for filename in tmpFileArray:
+                basename, file_extension = OS.path.splitext(filename)
+                # if file_extension == ".gnmap" or file_extension == ".xml":
+                # 	continue
 
-			nodenamearr = filename.split('_')
+                nodenamearr = filename.split('_')
 
-			if len(nodenamearr) == 4:
-				nodename = "_"
-				nodename = nodename.join(nodenamearr[2:])
-			else:
-				nodename = "_"
-				nodename = nodename.join(nodenamearr[-3:])
-
-
-			portscanfile = ET.SubElement(service, "node", custom_icon_id="18", foreground="", is_bold="False", name=nodename, prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-			ParseFile(portscanfile,filename)
-
-####################################
-
-scansnode = ET.SubElement(r_enum, "node", custom_icon_id="44", foreground="", is_bold="False", name="Scans", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-
-#  parse  global files
-for filename in OS.listdir(ScansDir):
-	basename, file_extension = OS.path.splitext(filename)
-
-	if not filename.startswith("udp") and not filename.startswith("tcp") and not OS.path.isdir("%s%s" %(ScansDir,filename)):
-
-		scanfile = ET.SubElement(scansnode, "node", custom_icon_id="18", foreground="", is_bold="False", name=filename, prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-		ParseFile(scanfile,filename)
-
-		continue
-	else:
-		continue
+                if len(nodenamearr) == 4:
+                    nodename = "_"
+                    nodename = nodename.join(nodenamearr[2:])
+                else:
+                    nodename = "_"
+                    nodename = nodename.join(nodenamearr[-3:])
 
 
-#######################
-r_service_ver = ET.SubElement(r_enum, "node", custom_icon_id="12", foreground="", is_bold="False", name="Software Versions", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-tmptext = ""
-for fp in AllServiceVersions:
-	tmptext += fp + "\n"
+                portscanfile = ET.SubElement(service, "node", custom_icon_id="18", foreground="", is_bold="False", name=nodename, prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+                ParseFile(portscanfile,filename, ScansDir)
 
-ET.SubElement(r_service_ver, "rich_text").text=tmptext
-r_vulns = ET.SubElement(r_enum, "node", custom_icon_id="43", foreground="", is_bold="False", name="Remote Vulnerabilites", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-foothold = ET.SubElement(host, "node", custom_icon_id="41", foreground="", is_bold="False", name="Foothold", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-l_enum = ET.SubElement(host, "node", custom_icon_id="21", foreground="", is_bold="False", name="Local Enumeration", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-l_service_ver = ET.SubElement(l_enum, "node", custom_icon_id="12", foreground="", is_bold="False", name="Software Versions", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-l_vulns = ET.SubElement(l_enum, "node", custom_icon_id="43", foreground="", is_bold="False", name="Local Vulnerabilites", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-escalate = ET.SubElement(host, "node", custom_icon_id="41", foreground="", is_bold="False", name="Escalation", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-users = ET.SubElement(host, "node", custom_icon_id="42", foreground="", is_bold="False", name="Users", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-loot = ET.SubElement(host, "node", custom_icon_id="24", foreground="", is_bold="False", name="Loot", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-creds = ET.SubElement(loot, "node", custom_icon_id="42", foreground="", is_bold="False", name="Credentials", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-proof = ET.SubElement(loot, "node", custom_icon_id="18", foreground="", is_bold="False", name="Proof", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-secrets = ET.SubElement(loot, "node", custom_icon_id="10", foreground="", is_bold="False", name="Secrets", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-exfil = ET.SubElement(host, "node", custom_icon_id="9", foreground="", is_bold="False", name="Exfil", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-ET.SubElement(exfil, "rich_text").text=EXFIL_TEMPLATE
-cleanup_todo = ET.SubElement(exfil, "node", custom_icon_id="18", foreground="", is_bold="False", name="Cleanup-Todo", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-ET.SubElement(cleanup_todo, "rich_text").text=CLEANUP_TEMPLATE
+    scansnode = ET.SubElement(r_enum, "node", custom_icon_id="44", foreground="", is_bold="False", name="Scans", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
 
-try:
-    tree = ET.ElementTree(root)
-    tree.write(ctdfile, encoding='utf-8')
-except Exception as e:
-    print('Cherrytree parser failed: ' + str(e))
-    sys.exit(1)
+    #  parse  global files
+    for filename in OS.listdir(ScansDir):
+        basename, file_extension = OS.path.splitext(filename)
 
-sys.exit(0)
+        if not filename.startswith("udp") and not filename.startswith("tcp") and not OS.path.isdir("%s%s" %(ScansDir,filename)):
+
+            scanfile = ET.SubElement(scansnode, "node", custom_icon_id="18", foreground="", is_bold="False", name=filename, prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+            ParseFile(scanfile,filename,ScansDir)
+
+            continue
+        else:
+            continue
+
+    r_service_ver = ET.SubElement(r_enum, "node", custom_icon_id="12", foreground="", is_bold="False", name="Software Versions", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    tmptext = ""
+    for fp in AllServiceVersions:
+        tmptext += fp + "\n"
+
+    ET.SubElement(r_service_ver, "rich_text").text=tmptext
+    r_vulns = ET.SubElement(r_enum, "node", custom_icon_id="43", foreground="", is_bold="False", name="Remote Vulnerabilites", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    foothold = ET.SubElement(host, "node", custom_icon_id="41", foreground="", is_bold="False", name="Foothold", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    l_enum = ET.SubElement(host, "node", custom_icon_id="21", foreground="", is_bold="False", name="Local Enumeration", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    l_service_ver = ET.SubElement(l_enum, "node", custom_icon_id="12", foreground="", is_bold="False", name="Software Versions", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    l_vulns = ET.SubElement(l_enum, "node", custom_icon_id="43", foreground="", is_bold="False", name="Local Vulnerabilites", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    escalate = ET.SubElement(host, "node", custom_icon_id="41", foreground="", is_bold="False", name="Escalation", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    users = ET.SubElement(host, "node", custom_icon_id="42", foreground="", is_bold="False", name="Users", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    loot = ET.SubElement(host, "node", custom_icon_id="24", foreground="", is_bold="False", name="Loot", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    creds = ET.SubElement(loot, "node", custom_icon_id="42", foreground="", is_bold="False", name="Credentials", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    proof = ET.SubElement(loot, "node", custom_icon_id="18", foreground="", is_bold="False", name="Proof", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    secrets = ET.SubElement(loot, "node", custom_icon_id="10", foreground="", is_bold="False", name="Secrets", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    exfil = ET.SubElement(host, "node", custom_icon_id="9", foreground="", is_bold="False", name="Exfil", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    ET.SubElement(exfil, "rich_text").text=EXFIL_TEMPLATE
+    cleanup_todo = ET.SubElement(exfil, "node", custom_icon_id="18", foreground="", is_bold="False", name="Cleanup-Todo", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    ET.SubElement(cleanup_todo, "rich_text").text=CLEANUP_TEMPLATE
+
+    try:
+        tree = ET.ElementTree(root)
+        tree.write(ctdfile, encoding='utf-8')
+    except Exception as e:
+        print('Cherrytree parser failed: ' + str(e))
+        return 1
+
+    return 0
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--color", action="store_true",help="Colorize certian lines")
+    parser.add_argument("-o", "--out", default="recon_notes.ctd", action="store",help="Output filename")
+    parser.add_argument("-d", "--dir", help="AutoRecon directory")
+    parser.add_argument("-s", "--silent", help="Run silently")
+    args = parser.parse_args()
+
+    if args.dir == None:
+        print('[-] Error: No directory specified')
+        quit()
+
+    makeNotes(args.dir, args.out)
