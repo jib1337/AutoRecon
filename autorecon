@@ -37,7 +37,7 @@ atexit.register(_quit)
 TERM_FLAGS = termios.tcgetattr(sys.stdin.fileno())
 
 verbose = 0
-nmap = '-Pn'
+nmap = ''
 srvname = ''
 heartbeat_interval = 60
 port_scan_profile = None
@@ -425,7 +425,7 @@ async def run_portscan(semaphore, tag, target, service_detection, port_scan=None
             if tag == 'nmap-full-tcp':
                 with open(os.path.join(scandir, '_full_tcp_nmap.txt'), 'r') as fullScan:
                     info('{bgreen}[+]' + '-' * 50 + '[NMAP SCAN]' + '-' * 50 + '[+]{rst}')
-                    print(fullScan.read())
+                    print(''.join(fullScan.readlines()[1:]))
                     info('{bgreen}[+]' + '-' * 111 + '[+]{rst}')
 
         services = results[0]
@@ -492,9 +492,9 @@ async def scan_services(loop, semaphore, target):
 
                         # info('Found {bmagenta}{service}{rst} on {bmagenta}{protocol}/{port}{rst} on target {byellow}{address}{rst}')
 
-                        if not only_scans_dir:
-                            with open(os.path.join(target.reportdir, 'notes.txt'), 'a') as file:
-                                file.writelines(e('[*] {service} found on {protocol}/{port}.\n\n\n\n'))
+                        # if not only_scans_dir:
+                            # with open(os.path.join(target.reportdir, 'notes.txt'), 'a') as file:
+                                # file.writelines(e('[*] {service} found on {protocol}/{port}.\n\n\n\n'))
 
                         if protocol == 'udp':
                             nmap_extra = nmap + " -sU"
@@ -672,18 +672,18 @@ class Target:
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Network reconnaissance tool to port scan and automatically enumerate services found on multiple targets.')
-    parser.add_argument('targets', action='store', help='IP addresses (e.g. 10.0.0.1), CIDR notation (e.g. 10.0.0.1/24), or resolvable hostnames (e.g. foo.bar) to scan.', nargs="*")
+    parser.add_argument('targets', action='store', help='IP addresses (e.g. 10.0.0.1), CIDR notation (e.g. 10.0.0.1/24), comma seperated, or resolvable hostnames (e.g. foo.bar) to scan.', nargs="*")
     parser.add_argument('-t', '--targets', action='store', type=str, default='', dest='target_file', help='Read targets from file.')
     parser.add_argument('-ct', '--concurrent-targets', action='store', metavar='<number>', type=int, default=1, help='The maximum number of target hosts to scan concurrently. Default: %(default)s')
     parser.add_argument('-cs', '--concurrent-scans', action='store', metavar='<number>', type=int, default=5, help='The maximum number of scans to perform per target host. Default: %(default)s')
     parser.add_argument('--profile', action='store', default='default', dest='profile_name', help='The port scanning profile to use (defined in port-scan-profiles.toml). Default: %(default)s')
     parser.add_argument('-o', '--output', action='store', default='results', dest='output_dir', help='The output directory for results. Default: %(default)s')
     parser.add_argument('--single-target', action='store_true', default=False, help='Only scan a single target. A directory named after the target will not be created. Instead, the directory structure will be created within the output directory. Default: false')
-    parser.add_argument('--only-scans-dir', action='store_true', default=False, help='Only create the "scans" directory for results. Other directories (e.g. exploit, loot, report) will not be created. Default: false')
+    parser.add_argument('--only-scans-dir', action='store_true', default=True, help='Only create the "scans" directory for results. Other directories (e.g. exploit, loot, report) will not be created. Default: true')
     parser.add_argument('--heartbeat', action='store', type=int, default=60, help='Specifies the heartbeat interval (in seconds) for task status messages. Default: %(default)s')
     parser.add_argument('--cherrytree-dir', action='store', default=f'/home/{getuser()}/Desktop', help='Choose the directory where cherrytree files get saved')
     nmap_group = parser.add_mutually_exclusive_group()
-    nmap_group.add_argument('--nmap', action='store', default='-vv -Pn', help='Override the {nmap_extra} variable in scans. Default: %(default)s')
+    nmap_group.add_argument('--nmap', action='store', default='-vv', help='Override the {nmap_extra} variable in scans. Default: %(default)s')
     nmap_group.add_argument('--nmap-append', action='store', default='', help='Append to the default {nmap_extra} variable in scans.')
     parser.add_argument('-v', '--verbose', action='count', default=0, help='Enable verbose output. Repeat for more verbosity.')
     parser.add_argument('--disable-sanity-checks', action='store_true', default=False, help='Disable sanity checks that would otherwise prevent the scans from running. Default: false')
@@ -763,6 +763,9 @@ if __name__ == '__main__':
 
     raw_targets = args.targets
     targets = []
+
+    if ',' in raw_targets[0]:
+        raw_targets = raw_targets[0].split(',')
 
     if len(args.target_file) > 0:
         if not os.path.isfile(args.target_file):
