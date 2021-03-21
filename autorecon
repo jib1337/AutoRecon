@@ -681,7 +681,7 @@ if __name__ == '__main__':
     parser.add_argument('--single-target', action='store_true', default=False, help='Only scan a single target. A directory named after the target will not be created. Instead, the directory structure will be created within the output directory. Default: false')
     parser.add_argument('--only-scans-dir', action='store_true', default=True, help='Only create the "scans" directory for results. Other directories (e.g. exploit, loot, report) will not be created. Default: true')
     parser.add_argument('--heartbeat', action='store', type=int, default=60, help='Specifies the heartbeat interval (in seconds) for task status messages. Default: %(default)s')
-    parser.add_argument('--cherrytree-dir', action='store', default=f'/home/{getuser()}/Desktop', help='Choose the directory where cherrytree files get saved')
+    parser.add_argument('--cherrytree-dir', action='store', default=f'/home/{getuser()}/Desktop', help='Choose the directory where cherrytree files get saved.')
     nmap_group = parser.add_mutually_exclusive_group()
     nmap_group.add_argument('--nmap', action='store', default='-vv', help='Override the {nmap_extra} variable in scans. Default: %(default)s')
     nmap_group.add_argument('--nmap-append', action='store', default='', help='Append to the default {nmap_extra} variable in scans.')

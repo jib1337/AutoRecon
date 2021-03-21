@@ -4,7 +4,7 @@
     [default.nmap-full-tcp]
 
         [default.nmap-full-tcp.service-detection]
-        command = 'sudo nmap {nmap_extra} -A -p- -oG "{scandir}/gnmap/_full_tcp_nmap.gnmap" -oN "{scandir}/_full_tcp_nmap.txt" -oX "{scandir}/xml/_full_tcp_nmap.xml" {address}; searchsploit --nmap "{scandir}/xml/_full_tcp_nmap.xml" > "{scandir}/searchsploit-nmap-tcp.ansi"'
+        command = 'sudo nmap {nmap_extra} -A -p- -T4 -oG "{scandir}/gnmap/_full_tcp_nmap.gnmap" -oN "{scandir}/_full_tcp_nmap.txt" -oX "{scandir}/xml/_full_tcp_nmap.xml" {address}; searchsploit --nmap "{scandir}/xml/_full_tcp_nmap.xml" > "{scandir}/searchsploit-nmap-tcp.ansi"'
         pattern = '^(?P<port>\d+)\/(?P<protocol>(tcp|udp))(.*)open(\s*)(?P<service>[\w\-\/]+)(\s*)(.*)$'
 
     [default.nmap-top-20-udp]

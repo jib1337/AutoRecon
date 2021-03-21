@@ -515,19 +515,19 @@ def makeNotes(ReconDir, ctdfile):
     ET.SubElement(r_service_ver, "rich_text").text=tmptext
     r_vulns = ET.SubElement(r_enum, "node", custom_icon_id="43", foreground="", is_bold="False", name="Remote Vulnerabilites", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
     foothold = ET.SubElement(host, "node", custom_icon_id="41", foreground="", is_bold="False", name="Foothold", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-    l_enum = ET.SubElement(host, "node", custom_icon_id="21", foreground="", is_bold="False", name="Local Enumeration", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-    l_service_ver = ET.SubElement(l_enum, "node", custom_icon_id="12", foreground="", is_bold="False", name="Software Versions", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-    l_vulns = ET.SubElement(l_enum, "node", custom_icon_id="43", foreground="", is_bold="False", name="Local Vulnerabilites", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    # l_enum = ET.SubElement(host, "node", custom_icon_id="21", foreground="", is_bold="False", name="Local Enumeration", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    # l_service_ver = ET.SubElement(l_enum, "node", custom_icon_id="12", foreground="", is_bold="False", name="Software Versions", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    # l_vulns = ET.SubElement(l_enum, "node", custom_icon_id="43", foreground="", is_bold="False", name="Local Vulnerabilites", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
     escalate = ET.SubElement(host, "node", custom_icon_id="41", foreground="", is_bold="False", name="Escalation", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
     users = ET.SubElement(host, "node", custom_icon_id="42", foreground="", is_bold="False", name="Users", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
     loot = ET.SubElement(host, "node", custom_icon_id="24", foreground="", is_bold="False", name="Loot", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
     creds = ET.SubElement(loot, "node", custom_icon_id="42", foreground="", is_bold="False", name="Credentials", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
     proof = ET.SubElement(loot, "node", custom_icon_id="18", foreground="", is_bold="False", name="Proof", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-    secrets = ET.SubElement(loot, "node", custom_icon_id="10", foreground="", is_bold="False", name="Secrets", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-    exfil = ET.SubElement(host, "node", custom_icon_id="9", foreground="", is_bold="False", name="Exfil", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-    ET.SubElement(exfil, "rich_text").text=EXFIL_TEMPLATE
-    cleanup_todo = ET.SubElement(exfil, "node", custom_icon_id="18", foreground="", is_bold="False", name="Cleanup-Todo", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-    ET.SubElement(cleanup_todo, "rich_text").text=CLEANUP_TEMPLATE
+    # secrets = ET.SubElement(loot, "node", custom_icon_id="10", foreground="", is_bold="False", name="Secrets", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    # exfil = ET.SubElement(host, "node", custom_icon_id="9", foreground="", is_bold="False", name="Exfil", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    # ET.SubElement(exfil, "rich_text").text=EXFIL_TEMPLATE
+    # cleanup_todo = ET.SubElement(exfil, "node", custom_icon_id="18", foreground="", is_bold="False", name="Cleanup-Todo", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    # ET.SubElement(cleanup_todo, "rich_text").text=CLEANUP_TEMPLATE
 
     try:
         tree = ET.ElementTree(root)
