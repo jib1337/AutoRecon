@@ -15,7 +15,7 @@ Everything in the tool is highly configurable. The default configuration perform
 
 ### Notes
 - Make sure running user has sudo nopass perms
-- Install cmseek and dirsearch to PATH
+- Install cmseek, smtp\_user\_enum and dirsearch to PATH
 
 ## Origin
 
