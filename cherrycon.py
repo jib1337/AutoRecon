@@ -520,7 +520,7 @@ def makeNotes(ReconDir, ctdfile):
     # l_vulns = ET.SubElement(l_enum, "node", custom_icon_id="43", foreground="", is_bold="False", name="Local Vulnerabilites", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
     escalate = ET.SubElement(host, "node", custom_icon_id="41", foreground="", is_bold="False", name="Escalation", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
     users = ET.SubElement(host, "node", custom_icon_id="42", foreground="", is_bold="False", name="Users", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
-    loot = ET.SubElement(host, "node", custom_icon_id="24", foreground="", is_bold="False", name="Loot", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    loot = ET.SubElement(host, "node", custom_icon_id="24", foreground="", is_bold="False", name="Post-Exploitation", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
     creds = ET.SubElement(loot, "node", custom_icon_id="42", foreground="", is_bold="False", name="Credentials", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
     proof = ET.SubElement(loot, "node", custom_icon_id="18", foreground="", is_bold="False", name="Proof", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
     # secrets = ET.SubElement(loot, "node", custom_icon_id="10", foreground="", is_bold="False", name="Secrets", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))

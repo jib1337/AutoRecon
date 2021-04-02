@@ -651,8 +651,13 @@ def scan_host(target, concurrent_scans):
         elapsed_time = calculate_elapsed_time(start_time)
         info('Finished scanning target {byellow}{target.address}{rst} in {elapsed_time}')
 
-        if makeNotes(basedir, f'{cherrydir}/{target.address}.ctd') == 0:
-            info('Cherrytree notes file outputted to {bgreen}' + cherrydir + '/' + target.address + '{rst}')
+        if target.address in target_names:
+            reportName = target_names[target.address]
+        else:
+            reportName = target.address
+
+        if makeNotes(basedir, f'{cherrydir}/{reportName}.ctd') == 0:
+            info('Cherrytree notes file outputted to {bgreen}' + cherrydir + '/' + reportName + '.ctd{rst}')
         else:
             warn(Fore.YELLOW + '[' + Style.BRIGHT + tag + Style.NORMAL + '] Cherrytree notes were not outputted.' + Fore.RESET)
 
@@ -672,7 +677,7 @@ class Target:
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Network reconnaissance tool to port scan and automatically enumerate services found on multiple targets.')
-    parser.add_argument('targets', action='store', help='IP addresses (e.g. 10.0.0.1), CIDR notation (e.g. 10.0.0.1/24), comma seperated, or resolvable hostnames (e.g. foo.bar) to scan.', nargs="*")
+    parser.add_argument('targets', action='store', help='IP addresses (e.g. 10.0.0.1), CIDR notation (e.g. 10.0.0.1/24), or resolvable hostnames (e.g. foo.bar) to scan.', nargs="*")
     parser.add_argument('-t', '--targets', action='store', type=str, default='', dest='target_file', help='Read targets from file.')
     parser.add_argument('-ct', '--concurrent-targets', action='store', metavar='<number>', type=int, default=1, help='The maximum number of target hosts to scan concurrently. Default: %(default)s')
     parser.add_argument('-cs', '--concurrent-scans', action='store', metavar='<number>', type=int, default=5, help='The maximum number of scans to perform per target host. Default: %(default)s')
@@ -764,9 +769,6 @@ if __name__ == '__main__':
     raw_targets = args.targets
     targets = []
 
-    if ',' in raw_targets[0]:
-        raw_targets = raw_targets[0].split(',')
-
     if len(args.target_file) > 0:
         if not os.path.isfile(args.target_file):
             error('The target file {args.target_file} was not found.')
@@ -782,12 +784,21 @@ if __name__ == '__main__':
             error('The target file {args.target_file} could not be read.')
             sys.exit(1)
 
+    target_names = {}
+    strippedTargets = []
+
     for target in raw_targets:
+        if ':' in target:
+            target_names[target.split(':')[0]] = target.split(':')[1]
+            strippedTargets.append(target.split(':')[0])
+
+    for target in strippedTargets:
         try:
             ip = str(ipaddress.ip_address(target))
 
             if ip not in targets:
                 targets.append(ip)
+
         except ValueError:
 
             try:

@@ -11,11 +11,13 @@ Everything in the tool is highly configurable. The default configuration perform
 - Nmap full scan goes straight into terminal when done, no "found service" messages
 - Config changes disabling long dirbusting, changing defaults to scan 1 hosts at a time with 5 max scans
 - Cherrytree files automatically get dropped on the desktop after a host has been scanned, destination can be changed via argument
+- A machine name can be assigned which will be used to create the cherrytree file using colon seperation.
+	- eg:`autorecon 127.0.0.1:localhost` will output the report as "localhost.ctx".
 - Nmap uses sudo now
 
 ### Notes
 - Make sure running user has sudo nopass perms
-- Install cmseek, smtp\_user\_enum and dirsearch to PATH
+- Install sipvicious, cmseek, smtp\_user\_enum and dirsearch into PATH
 
 ## Origin
 
