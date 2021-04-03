@@ -190,11 +190,7 @@ async def read_stream(stream, target, tag='?', patterns=[], color=Fore.BLUE):
     address = target.address
 
     while True:
-        try:
-            line = await stream.readline()
-        except Exception as e:
-            if 'limit' in str(e):
-                continue
+        line = await stream.readline()
 
         if line:
             line = str(line.rstrip(), 'utf8', 'ignore')
@@ -662,7 +658,7 @@ def scan_host(target, concurrent_scans):
         else:
             reportName = target.address
 
-        if makeNotes(basedir, f'{cherrydir}/{reportName}.ctd') == 0:
+        if makeNotes(basedir, f'{cherrydir}/{reportName}.ctd', target.address) == 0:
             info('Cherrytree notes file outputted to {bgreen}' + cherrydir + '/' + reportName + '.ctd{rst}')
         else:
             warn(Fore.YELLOW + '[' + Style.BRIGHT + tag + Style.NORMAL + '] Cherrytree notes were not outputted.' + Fore.RESET)

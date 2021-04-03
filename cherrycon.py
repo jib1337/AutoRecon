@@ -346,7 +346,7 @@ def ParseFile(element,filename, ScansDir):
 			except:
 				print("[-] Failed to parse %s" %filename)
 
-def makeNotes(ReconDir, ctdfile):
+def makeNotes(ReconDir, ctdfile, targetIP):
 
     seed(500)
 
@@ -455,18 +455,20 @@ def makeNotes(ReconDir, ctdfile):
 
     AllServiceVersions = unique_list2
 
+    try:
+        targetname
+    except NameError:
+        targetname = targetIP
+
     root = ET.Element("cherrytree")
     host = ET.SubElement(root, "node", custom_icon_id="14", foreground="", is_bold="False", name=targetname, prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
     sysinfo = ET.SubElement(host, "node", custom_icon_id="12", foreground="", is_bold="False", name="System Details", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
     r_enum = ET.SubElement(host, "node", custom_icon_id="22", foreground="", is_bold="False", name="Remote Enumeration", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
     portnode = ET.SubElement(r_enum, "node", custom_icon_id="38", foreground="", is_bold="False", name="Ports", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
 
-
     for port in AllPorts:
         service = ET.SubElement(portnode, "node", is_bold="False", name=str(port), prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
         tPort=port.split('/')
-
-
 
         tmpFileArray = glob.glob("%s%s_%s_*" %(ScansDir,tPort[1],tPort[0]))
 
