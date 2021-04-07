@@ -515,7 +515,7 @@ def makeNotes(ReconDir, ctdfile, targetIP):
         tmptext += fp + "\n"
 
     ET.SubElement(r_service_ver, "rich_text").text=tmptext
-    r_vulns = ET.SubElement(r_enum, "node", custom_icon_id="43", foreground="", is_bold="False", name="Remote Vulnerabilites", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
+    # r_vulns = ET.SubElement(r_enum, "node", custom_icon_id="43", foreground="", is_bold="False", name="Remote Vulnerabilites", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
     foothold = ET.SubElement(host, "node", custom_icon_id="41", foreground="", is_bold="False", name="Foothold", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
     # l_enum = ET.SubElement(host, "node", custom_icon_id="21", foreground="", is_bold="False", name="Local Enumeration", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))
     # l_service_ver = ET.SubElement(l_enum, "node", custom_icon_id="12", foreground="", is_bold="False", name="Software Versions", prog_lang="custom-colors", readonly="False", tags="", unique_id=str(randint(0,10000)))

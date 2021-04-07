@@ -793,6 +793,8 @@ if __name__ == '__main__':
         if ':' in target:
             target_names[target.split(':')[0]] = target.split(':')[1]
             strippedTargets.append(target.split(':')[0])
+        else:
+            strippedTargets.append(target)
 
     for target in strippedTargets:
         try:
