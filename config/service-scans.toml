@@ -1,5 +1,6 @@
 # Configurable Variables
 username_wordlist = '/usr/share/seclists/Usernames/top-usernames-shortlist.txt'
+smtp_wordlist = '/usr/share/wordlists/metasploit/unix_users.txt'
 password_wordlist = '/usr/share/seclists/Passwords/darkweb2017-top100.txt'
 
 [all-services] # Define scans here that you want to run against all services.
@@ -418,7 +419,7 @@ service-names = [
 
     [[smtp.scan]]
     name = 'smtp-user-enum'
-    command = 'smtp-user-enum -M VRFY -U "{username_wordlist}" -t {address} -p {port} 2>&1 | tee "{scandir}/{protocol}_{port}_smtp_user-enum.txt"'
+    command = 'smtp-user-enum -M VRFY -U "{smtp_wordlist}" -t {address} -p {port} 2>&1 | tee "{scandir}/{protocol}_{port}_smtp_user-enum.txt"'
 
 [snmp]
 
