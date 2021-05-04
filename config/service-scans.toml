@@ -376,7 +376,7 @@ service-names = [
 
     [[smb.scan]]
     name = 'smbclient'
-    command = 'smbclient -L\\ -N -I {address} 2>&1 | tee "{scandir}/smbclient.txt"'
+    command = 'smbclient -L \\\\{address}\\ -N 2>&1 | tee "{scandir}/smbclient.txt"'
     run_once = true
     ports.tcp = [139, 445]
 
