@@ -13,8 +13,8 @@ Everything in the tool is highly configurable. The default configuration perform
 - Cherrytree files automatically get dropped on the desktop after a host has been scanned, destination can be changed via argument
 - Using colon seperation, a machine name can be assigned which will be used to create the cherrytree file
 	- eg:`autorecon 127.0.0.1:localhost` will output the report as "localhost.ctd"
-- Some commands use sudo now (when appropriate)
-- enum4linux is now enum4linux-ng (https://github.com/cddmp/enum4linux-ng)
+- Some commands use sudo now (when appropriate) eg. nmap
+- Enum4linux is now enum4linux-ng (https://github.com/cddmp/enum4linux-ng)
 
 ### Notes
 - Make sure running user has sudo nopass perms
