@@ -30,12 +30,13 @@ from cherrycon import *
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
 def _quit():
-    termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, TERM_FLAGS)
+    try:
+        TERM_FLAGS = termios.tcgetattr(sys.stdin.fileno())
+        termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, TERM_FLAGS)
+    except:
+        pass
 
 atexit.register(_quit)
-
-TERM_FLAGS = termios.tcgetattr(sys.stdin.fileno())
-
 verbose = 0
 nmap = ''
 srvname = ''
@@ -191,6 +192,11 @@ async def read_stream(stream, target, tag='?', patterns=[], color=Fore.BLUE):
 
     while True:
         line = await stream.readline()
+
+        try:
+            tag
+        except:
+            tag = '|'
 
         if line:
             line = str(line.rstrip(), 'utf8', 'ignore')
