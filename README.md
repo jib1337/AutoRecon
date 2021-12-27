@@ -18,14 +18,13 @@ Everything in the tool is highly configurable. The default configuration perform
 
 ### Docker
 Run this in a docker container. Will need to connect a volume to get the cherrytree files out.  
-Files will be dropped in container's /tmp directory.  
 1. Build container
 ```bash
 autorecon~$ docker build -t autorecon .
 ```
 2. Run container (IP address for example)
 ```bash
-autorecon~$ docker run -it -v $pwd:/tmp autorecon 192.168.1.112
+autorecon~$ docker run -it -v $PWD:/autorecon/results autorecon 192.168.1.112
 ```
 
 ### Notes

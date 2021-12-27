@@ -4,16 +4,15 @@ ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/autorecon
 RUN mkdir /autorecon
 RUN mkdir /autorecon/config
 RUN mkdir /autorecon/helpers
+RUN mkdir /autorecon/results
 
-ADD autorecon /autorecon
-ADD ansifilter /autorecon
 ADD autorecon /autorecon
 ADD cherrycon.py /autorecon
 ADD config/ /autorecon/config/
 ADD helpers/ /autorecon/helpers/
 ADD requirements.txt /autorecon
 
-RUN sed -i "s/\/home\/{getuser()}\/Desktop/\/tmp/g" /autorecon/autorecon
+RUN sed -i "s/\/home\/{getuser()}\/Desktop/\/autorecon\/results/g" /autorecon/autorecon
 
 RUN apt update \
     && apt install sudo git -y \
@@ -25,5 +24,7 @@ RUN apt update \
                    nfs-common vim iputils-ping net-tools wget wpscan -y \
     && apt clean \
     && python3 -m pip install -r /autorecon/requirements.txt
+
+RUN git clone https://gitlab.com/saalen/ansifilter && cd ansifilter && make && make install
 
 ENTRYPOINT ["autorecon"]
