@@ -16,9 +16,21 @@ Everything in the tool is highly configurable. The default configuration perform
 - Some commands use sudo now (when appropriate) eg. nmap
 - Enum4linux is now enum4linux-ng (https://github.com/cddmp/enum4linux-ng)
 
+### Docker
+Run this in a docker container. Will need to connect a volume to get the cherrytree files out.  
+1. Build container
+```bash
+autorecon~$ docker build -t autorecon .
+```
+2. Run container (IP address for example)
+```bash
+autorecon~$ docker run -it -v $PWD:/autorecon/results autorecon 192.168.1.112
+```
+
 ### Notes
 - Make sure running user has sudo nopass perms
 - Install sipvicious, cmseek, smtp\_user\_enum and dirsearch into PATH
+- Outside Docker, the version of ansifilter included with the repo might not work; if it causes issues, build from https://gitlab.com/saalen/ansifilter
 
 ## Origin
 
