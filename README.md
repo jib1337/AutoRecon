@@ -31,6 +31,7 @@ autorecon~$ docker run -it -v $pwd:/tmp autorecon 192.168.1.112
 ### Notes
 - Make sure running user has sudo nopass perms
 - Install sipvicious, cmseek, smtp\_user\_enum and dirsearch into PATH
+- Outside Docker, the version of ansifilter included with the repo might not work; if it causes issues, build from https://gitlab.com/saalen/ansifilter
 
 ## Origin
 
