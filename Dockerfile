@@ -22,7 +22,7 @@ RUN apt update \
                    snmp sslscan sipvicious whatweb exploitdb \
                    nfs-common vim iputils-ping net-tools wget wpscan -y \
     && apt clean \
-    && python3 -m pip install -r /autorecon/requirements.txt
+    && python3 -m pip install -r /autorecon/requirements.txt --break-system-packages
 
 RUN git clone https://gitlab.com/saalen/ansifilter && cd ansifilter && make && make install
 

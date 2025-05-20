@@ -743,7 +743,7 @@ if __name__ == '__main__':
                         errors = True
                     else:
                         if not all(x in port_scan_profiles_config[profile][scan]['service-detection']['pattern'] for x in ['(?P<port>', '(?P<protocol>', '(?P<service>']):
-                            error('The {profile}.{scan}.service-detection pattern does not contain one or more of the following matching groups: port, protocol, service. Ensure that all three of these matching groups are defined and capture the relevant data, e.g. (?P<port>\d+)')
+                            error('The {profile}.{scan}.service-detection pattern does not contain one or more of the following matching groups: port, protocol, service. Ensure that all three of these matching groups are defined and capture the relevant data, e.g. (?P<port>\\d+)')
                             errors = True
 
                 if 'port-scan' in port_scan_profiles_config[profile][scan]:
@@ -756,7 +756,7 @@ if __name__ == '__main__':
                         errors = True
                     else:
                         if '(?P<port>' not in port_scan_profiles_config[profile][scan]['port-scan']['pattern']:
-                            error('The {profile}.{scan}.port-scan pattern does not contain a port matching group. Ensure that the port matching group is defined and captures the relevant data, e.g. (?P<port>\d+)')
+                            error('The {profile}.{scan}.port-scan pattern does not contain a port matching group. Ensure that the port matching group is defined and captures the relevant data, e.g. (?P<port>\\d+)')
                             errors = True
             break
 
