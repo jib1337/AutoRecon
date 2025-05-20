@@ -1,4 +1,4 @@
-FROM kalilinux/kali
+FROM kalilinux/kali-rolling
 
 ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/autorecon
 RUN mkdir /autorecon
@@ -9,7 +9,6 @@ RUN mkdir /autorecon/results
 ADD autorecon /autorecon
 ADD cherrycon.py /autorecon
 ADD config/ /autorecon/config/
-ADD helpers/ /autorecon/helpers/
 ADD requirements.txt /autorecon
 
 RUN sed -i "s/\/home\/{getuser()}\/Desktop/\/autorecon\/results/g" /autorecon/autorecon
