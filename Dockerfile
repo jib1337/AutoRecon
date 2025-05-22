@@ -13,16 +13,23 @@ ADD requirements.txt /autorecon
 
 RUN sed -i "s/\/home\/{getuser()}\/Desktop/\/autorecon\/results/g" /autorecon/autorecon
 
-RUN apt update \
-    && apt install sudo git -y \
-    && apt install python3 -y \
-    && apt install python3-pip -y \
+RUN apt update
+RUN apt install -y wget libffi-dev gcc build-essential curl tcl-dev tk-dev uuid-dev liblzma-dev libssl-dev libsqlite3-dev
+RUN wget https://www.python.org/ftp/python/3.10.0/Python-3.10.0.tgz
+RUN tar -zxvf Python-3.10.0.tgz
+RUN cd Python-3.10.0 && ./configure --prefix=/opt/python3.10 && make && make install
+RUN rm Python-3.10.0.tgz
+RUN rm -r Python-3.10.0/
+RUN ln -s /opt/python3.10/bin/python3.10 /usr/bin/python
+
+RUN apt install sudo git -y \
     && apt install seclists curl enum4linux gobuster dirb nbtscan nikto \
                    nmap onesixtyone oscanner smbclient smbmap smtp-user-enum \
                    snmp sslscan sipvicious whatweb exploitdb \
                    nfs-common vim iputils-ping net-tools wget wpscan -y \
-    && apt clean \
-    && python3 -m pip install -r /autorecon/requirements.txt --break-system-packages
+    && apt clean
+
+RUN python -m pip install -r /autorecon/requirements.txt
 
 RUN git clone https://gitlab.com/saalen/ansifilter && cd ansifilter && make && make install
 
